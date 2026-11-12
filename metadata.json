@@ -1,0 +1,6 @@
+{
+  "name": "Virdrobe - AI Virtual Try-On & Exact-Fit Commerce",
+  "description": "Where It Fits — Shop, Fit, Thrift. Exact-fit discovery, editorial magazine cover feeds, Digital Twin wardrobe, and creator affiliate loop powered by Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
