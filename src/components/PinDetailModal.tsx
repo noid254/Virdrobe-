@@ -22,6 +22,7 @@ interface Props {
   onClose: () => void;
   onTryOn: (cover: MagazineCover) => void;
   onShareAffiliate: (cover: MagazineCover) => void;
+  onBuy?: (cover: MagazineCover) => void;
   isTriedOn?: boolean;
 }
 
@@ -32,6 +33,7 @@ export const PinDetailModal: React.FC<Props> = ({
   onClose,
   onTryOn,
   onShareAffiliate,
+  onBuy,
   isTriedOn = false,
 }) => {
   const [copied, setCopied] = useState(false);
@@ -40,15 +42,15 @@ export const PinDetailModal: React.FC<Props> = ({
 
   const garment = cover.garment;
 
+  // Sharing creates a tracked link on the server (see App.handleShareCover).
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(cover.qrCodeData);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    onShareAffiliate(cover);
+    onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-xl">
-      <div className="relative w-full max-w-4xl max-h-[94vh] overflow-y-auto bg-[#101217] border border-white/15 rounded-3xl p-5 sm:p-7 shadow-2xl text-zinc-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-5 bg-black/90 backdrop-blur-xl">
+      <div className="relative w-full max-w-4xl max-h-[96dvh] overflow-y-auto bg-[#101217] border border-white/15 rounded-3xl p-4 sm:p-7 shadow-2xl text-zinc-100">
         {/* Top Dismiss Button */}
         <button
           onClick={onClose}
@@ -181,15 +183,24 @@ export const PinDetailModal: React.FC<Props> = ({
                 }`}
               >
                 <Sparkles className="w-4 h-4" />
-                <span>{isTriedOn ? 'View Wearing on Twin' : 'Try On Digital Twin (-1 Token)'}</span>
+                <span>{isTriedOn ? 'View Wearing on Twin' : 'Try it on me'}</span>
               </button>
+
+              {onBuy && garment.inStock !== false && (
+                <button
+                  onClick={() => onBuy(cover)}
+                  className="py-3 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-500 text-white font-semibold text-xs tracking-wider uppercase shadow-xl flex items-center justify-center gap-2"
+                >
+                  <span>Buy · ${garment.price}</span>
+                </button>
+              )}
 
               <button
                 onClick={handleCopyLink}
                 className="py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-semibold uppercase tracking-wider transition flex items-center justify-center gap-1.5"
               >
                 <Copy className="w-4 h-4 text-amber-400" />
-                <span>{copied ? 'Link Copied!' : 'Affiliate Link'}</span>
+                <span>Share link</span>
               </button>
 
               <button
@@ -198,7 +209,7 @@ export const PinDetailModal: React.FC<Props> = ({
                   onClose();
                 }}
                 className="p-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-white/15 text-amber-300 transition flex items-center justify-center"
-                title="Open 10% Creator Affiliate QR"
+                title="Share this look"
               >
                 <Share2 className="w-4 h-4" />
               </button>

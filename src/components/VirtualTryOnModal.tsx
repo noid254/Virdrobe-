@@ -25,8 +25,11 @@ interface Props {
   cover: MagazineCover | null;
   userProfile: UserFitProfile;
   digitalTwin: DigitalTwin;
-  onPublishCover: (createdCover: MagazineCover) => void;
-  onDeductSellerToken: (sellerId: string, garmentTitle: string) => void;
+  /** Resolves with the shareable link once the try-on is saved on the server. */
+  onPublishCover: (createdCover: MagazineCover) => Promise<string>;
+  onDeductSellerToken: (sellerId: string, garmentTitle: string, garmentId: string) => void;
+  isAffiliate: boolean;
+  onRegisterAffiliate: () => void;
 }
 
 export const VirtualTryOnModal: React.FC<Props> = ({
@@ -37,11 +40,16 @@ export const VirtualTryOnModal: React.FC<Props> = ({
   digitalTwin,
   onPublishCover,
   onDeductSellerToken,
+  isAffiliate,
+  onRegisterAffiliate,
 }) => {
   const [generating, setGenerating] = useState(true);
   const [tryOnImage, setTryOnImage] = useState<string>('');
   const [stylistCommentary, setStylistCommentary] = useState<string>('');
   const [published, setPublished] = useState(false);
+  const [shareLink, setShareLink] = useState('');
+  const [publishError, setPublishError] = useState('');
+  const [publishing, setPublishing] = useState(false);
   const [tokenDeducted, setTokenDeducted] = useState(false);
   const [userStylingHeadline, setUserStylingHeadline] = useState<string>('');
   const [userStylingNote, setUserStylingNote] = useState<string>('');
@@ -51,12 +59,14 @@ export const VirtualTryOnModal: React.FC<Props> = ({
 
     setGenerating(true);
     setPublished(false);
+    setShareLink('');
+    setPublishError('');
     setTokenDeducted(false);
     setUserStylingHeadline(`${userProfile.name.split(' ')[0]}’S EDIT: ${cover.garment.title.toUpperCase()}`);
     setUserStylingNote(cover.stylingTip || 'Styled effortlessly on an exact 27" waist and 35" bust.');
 
     // Deduct 1 token from seller's token ledger
-    onDeductSellerToken(cover.sellerId, cover.garment.title);
+    onDeductSellerToken(cover.sellerId, cover.garment.title, cover.garment.id);
     setTokenDeducted(true);
 
     // Call server try-on API
@@ -103,9 +113,9 @@ export const VirtualTryOnModal: React.FC<Props> = ({
   if (!isOpen || !cover) return null;
 
   const garment = cover.garment;
-  const affiliateQrData = `https://virdrobe.fashion/discover/${garment.id}?aff=aff_${userProfile.userId}&creator=${encodeURIComponent(userProfile.name)}`;
+  const affiliateQrData = ''; // the server issues the real tracked link
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     const creatorCover: MagazineCover = {
       id: `cover_creator_${Date.now()}`,
       garmentId: garment.id,
@@ -119,7 +129,7 @@ export const VirtualTryOnModal: React.FC<Props> = ({
       editorialCopy: `Styled on Digital Twin (${userProfile.chestInches}" bust, ${userProfile.waistInches}" waist). Verified zero-miss fit.`,
       coverImageUrl: tryOnImage || cover.coverImageUrl,
       qrCodeData: affiliateQrData,
-      affiliateCommissionRate: 0.10,
+      affiliateCommissionRate: rate,
       creatorId: userProfile.userId,
       creatorName: userProfile.name,
       creatorAvatar: userProfile.avatarUrl,
@@ -129,9 +139,19 @@ export const VirtualTryOnModal: React.FC<Props> = ({
       stylingTip: userStylingNote,
     };
 
-    onPublishCover(creatorCover);
-    setPublished(true);
+    setPublishing(true);
+    setPublishError('');
+    try {
+      setShareLink(await onPublishCover(creatorCover));
+      setPublished(true);
+    } catch (err: any) {
+      setPublishError(err.message || 'Could not publish. Try again.');
+    } finally {
+      setPublishing(false);
+    }
   };
+
+  const rate = cover.affiliateCommissionRate ?? 0.1;
 
   const handleDownloadCover = () => {
     // Generate an automatic download trigger
@@ -145,8 +165,8 @@ export const VirtualTryOnModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-lg">
-      <div className="relative w-full max-w-4xl max-h-[94vh] overflow-y-auto bg-[#0d0e12] border border-white/15 rounded-3xl p-5 sm:p-7 shadow-2xl text-zinc-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/90 backdrop-blur-lg">
+      <div className="relative w-full max-w-4xl max-h-[96dvh] overflow-y-auto bg-[#0d0e12] border border-white/15 rounded-3xl p-4 sm:p-7 shadow-2xl text-zinc-100">
         {/* Header */}
         <div className="flex items-start justify-between border-b border-white/10 pb-4">
           <div>
@@ -213,14 +233,16 @@ export const VirtualTryOnModal: React.FC<Props> = ({
                 </div>
 
                 {/* Embedded Creator Affiliate QR Code Stamped in Corner */}
-                <div className="absolute bottom-3 right-3 z-20">
-                  <QRCodeBadge
-                    data={affiliateQrData}
-                    size={64}
-                    label="10% EARN"
-                    showScanEffect={true}
-                  />
-                </div>
+                {shareLink && (
+                  <div className="absolute bottom-3 right-3 z-20">
+                    <QRCodeBadge
+                      data={shareLink}
+                      size={64}
+                      label={isAffiliate ? 'SCAN TO SHOP' : 'SCAN'}
+                      showScanEffect={true}
+                    />
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -287,25 +309,41 @@ export const VirtualTryOnModal: React.FC<Props> = ({
               )}
             </div>
 
-            {/* Creator 10% Affiliate Monetization Box */}
+            {/* Reseller commission box */}
             <div className="bg-gradient-to-br from-amber-950/30 to-black/80 border border-amber-500/30 rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Tag className="w-4 h-4 text-amber-400" />
                 <h4 className="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
-                  Creator 10% Affiliate Sharing Loop
+                  {isAffiliate ? 'Reseller commission' : 'Earn when you share'}
                 </h4>
               </div>
 
-              <p className="text-xs text-zinc-300 leading-relaxed">
-                When you share or download your magazine cover, your unique affiliate QR code is automatically embedded. If another size-matched shopper purchases this item, you earn:
-              </p>
-
-              <div className="mt-2.5 flex items-center justify-between p-2.5 bg-black/50 rounded-xl border border-white/10">
-                <span className="text-xs text-zinc-300">Item Price: ${garment.price}</span>
-                <span className="text-sm font-bold text-amber-300 font-mono">
-                  +${(garment.price * 0.10).toFixed(2)} Commission (10%)
-                </span>
-              </div>
+              {isAffiliate ? (
+                <>
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    When you publish this try-on, you get a link. If someone buys through it, the seller pays you:
+                  </p>
+                  <div className="mt-2.5 flex items-center justify-between p-2.5 bg-black/50 rounded-xl border border-white/10">
+                    <span className="text-xs text-zinc-300">Item price: ${garment.price}</span>
+                    <span className="text-sm font-bold text-amber-300 font-mono">
+                      +${(garment.price * rate).toFixed(2)} ({Math.round(rate * 1000) / 10}%)
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    You can share this try-on, but you only earn commission ({Math.round(rate * 1000) / 10}% on this item) if you are registered as a reseller.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={onRegisterAffiliate}
+                    className="mt-2.5 w-full py-2.5 rounded-xl bg-amber-500 text-black text-xs font-bold"
+                  >
+                    Register as a reseller
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Styling Notes Input for Publishing */}
@@ -329,12 +367,30 @@ export const VirtualTryOnModal: React.FC<Props> = ({
               />
             </div>
 
+            {publishError && (
+              <p role="alert" className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">
+                {publishError}
+              </p>
+            )}
+            {shareLink && (
+              <div className="flex items-center gap-2 bg-black/50 border border-emerald-500/30 rounded-xl p-2.5">
+                <input readOnly value={shareLink} onFocus={(e) => e.currentTarget.select()} className="flex-1 min-w-0 bg-transparent text-xs text-emerald-200 font-mono outline-none" />
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard?.writeText(shareLink)}
+                  className="shrink-0 px-3 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold"
+                >
+                  Copy
+                </button>
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="pt-2 flex flex-col sm:flex-row gap-2">
               {/* Publish Cover to Community Feed */}
               <button
                 onClick={handlePublish}
-                disabled={published}
+                disabled={published || publishing}
                 className={`flex-1 py-3 px-4 rounded-xl text-xs font-semibold tracking-wider uppercase transition flex items-center justify-center gap-2 ${
                   published
                     ? 'bg-emerald-600 text-white cursor-default'

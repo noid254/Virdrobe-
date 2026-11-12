@@ -35,3 +35,11 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* Mobile polish: no iOS zoom-on-focus, no sideways scroll, comfortable tap targets */
+html { -webkit-text-size-adjust: 100%; }
+body { overflow-x: hidden; }
+@media (max-width: 640px) {
+  input, select, textarea { font-size: 16px !important; }
+  button { min-height: 36px; }
+}

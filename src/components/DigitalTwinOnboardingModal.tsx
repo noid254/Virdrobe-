@@ -101,8 +101,8 @@ export const DigitalTwinOnboardingModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-[#12141a] border border-white/10 rounded-2xl shadow-2xl text-zinc-100 p-6 md:p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md">
+      <div className="relative w-full max-w-3xl max-h-[94dvh] overflow-y-auto bg-[#12141a] border border-white/10 rounded-2xl shadow-2xl text-zinc-100 p-4 sm:p-6 md:p-8">
         {/* Header */}
         <div className="flex items-start justify-between border-b border-white/10 pb-5">
           <div>

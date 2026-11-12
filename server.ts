@@ -5,6 +5,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { mountApi } from './server/routes';
 
 dotenv.config();
 
@@ -17,6 +18,9 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 // Generous limit for high-res garment photos and Digital Twin base64 snapshots
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+
+// Accounts, profiles, affiliate + seller APIs (must be mounted before the AI routes)
+mountApi(app);
 
 // Server-side Gemini initialization with required User-Agent
 const apiKey = process.env.GEMINI_API_KEY || '';

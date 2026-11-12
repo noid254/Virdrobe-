@@ -70,7 +70,7 @@ export const PinterestFiltersDrawer: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md">
-      <div className="relative w-full max-w-xl max-h-[92vh] overflow-y-auto bg-[#12141a] border border-white/15 rounded-3xl p-5 sm:p-7 shadow-2xl text-zinc-100">
+      <div className="relative w-full max-w-xl max-h-[94dvh] overflow-y-auto bg-[#12141a] border border-white/15 rounded-3xl p-5 sm:p-7 shadow-2xl text-zinc-100">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
           <div className="flex items-center gap-2">

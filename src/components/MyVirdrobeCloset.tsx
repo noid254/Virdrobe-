@@ -93,7 +93,7 @@ export const MyVirdrobeCloset: React.FC<Props> = ({
     <div className="w-full max-w-7xl mx-auto px-4 py-6">
       {/* Toast Notification */}
       {resaleSuccessToast && (
-        <div className="fixed top-20 right-6 z-50 bg-emerald-900/90 border border-emerald-500 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 text-xs font-semibold animate-bounce">
+        <div className="fixed top-16 inset-x-3 sm:inset-x-auto sm:right-6 z-50 bg-emerald-900/90 border border-emerald-500 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 text-xs font-semibold animate-bounce">
           <CheckCircle2 className="w-4 h-4 text-emerald-300" />
           <span>{resaleSuccessToast}</span>
         </div>

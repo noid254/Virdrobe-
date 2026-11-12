@@ -154,8 +154,8 @@ export const AddGarmentModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-      <div className="relative w-full max-w-2xl bg-[#12141a] border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl text-zinc-100 max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md">
+      <div className="relative w-full max-w-2xl bg-[#12141a] border border-white/15 rounded-3xl p-4 sm:p-8 shadow-2xl text-zinc-100 max-h-[94dvh] overflow-y-auto">
         <div className="flex items-start justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/30 text-rose-400 flex items-center justify-center">

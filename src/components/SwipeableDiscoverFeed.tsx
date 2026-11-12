@@ -27,6 +27,7 @@ interface Props {
   userProfile: UserFitProfile;
   onTryOn: (cover: MagazineCover) => void;
   onShareAffiliate: (cover: MagazineCover) => void;
+  onBuy?: (cover: MagazineCover) => void;
   onOpenCalibration: () => void;
   triedOnGarmentIds: string[];
 }
@@ -36,6 +37,7 @@ export const SwipeableDiscoverFeed: React.FC<Props> = ({
   userProfile,
   onTryOn,
   onShareAffiliate,
+  onBuy,
   onOpenCalibration,
   triedOnGarmentIds,
 }) => {
@@ -44,7 +46,7 @@ export const SwipeableDiscoverFeed: React.FC<Props> = ({
   const [deckIndex, setDeckIndex] = useState(0);
   const [selectedDetailCover, setSelectedDetailCover] = useState<MagazineCover | null>(null);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
-  const [showTrendsChart, setShowTrendsChart] = useState(true);
+  const [showTrendsChart, setShowTrendsChart] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
 
   // Multi-Filter State
   const [filters, setFilters] = useState<FilterState>({
@@ -172,7 +174,7 @@ export const SwipeableDiscoverFeed: React.FC<Props> = ({
             type="text"
             value={filters.searchQuery}
             onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
-            placeholder="Search pins for trenches, cashmere, silk gowns, Totême, The Row..."
+            placeholder="Search clothes, brands, styles"
             className="w-full pl-10 pr-10 py-2.5 rounded-full bg-zinc-900/90 border border-white/10 hover:border-white/25 focus:border-rose-500 text-xs text-white placeholder-zinc-500 shadow-inner focus:outline-none transition"
           />
           {filters.searchQuery && (
@@ -368,7 +370,7 @@ export const SwipeableDiscoverFeed: React.FC<Props> = ({
         </div>
       ) : viewMode === 'pinterest_masonry' ? (
         /* PINTEREST MASONRY MULTI-COLUMN FEED */
-        <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+        <div className="columns-2 md:columns-3 lg:columns-4 gap-3 sm:gap-4 space-y-3 sm:space-y-4">
           {filteredCovers.map((cover) => (
             <PinterestPinCard
               key={cover.id}
@@ -426,6 +428,7 @@ export const SwipeableDiscoverFeed: React.FC<Props> = ({
         onClose={() => setSelectedDetailCover(null)}
         onTryOn={onTryOn}
         onShareAffiliate={onShareAffiliate}
+        onBuy={onBuy}
         isTriedOn={selectedDetailCover ? triedOnGarmentIds.includes(selectedDetailCover.garmentId) : false}
       />
 
