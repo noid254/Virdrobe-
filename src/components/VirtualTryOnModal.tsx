@@ -205,28 +205,11 @@ export const VirtualTryOnModal: React.FC<Props> = ({
                 {/* Editorial Vignette */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-black/60 pointer-events-none" />
 
-                {/* Masthead Banner */}
-                <div className="absolute top-0 inset-x-0 p-4 text-center z-10 pointer-events-none">
-                  <div className="flex justify-between text-[9px] font-mono tracking-widest text-zinc-300 uppercase border-b border-white/20 pb-1 mb-1">
-                    <span>{cover.issueTag}</span>
-                    <span>VIRDROBE RUNWAY</span>
-                  </div>
-                  <h3 className="font-masthead text-2xl text-white font-black tracking-[0.2em] uppercase drop-shadow">
+                {/* Subtle Top Masthead Header */}
+                <div className="absolute top-0 inset-x-0 p-3 text-center z-10 pointer-events-none">
+                  <h3 className="font-masthead text-lg text-white font-black tracking-[0.2em] uppercase drop-shadow">
                     {userProfile.name.toUpperCase()}
                   </h3>
-                  <p className="text-[9px] tracking-widest text-rose-300 font-mono">
-                    WHERE IT FITS • SPECIAL EDITION
-                  </p>
-                </div>
-
-                {/* Headline Overlay */}
-                <div className="absolute bottom-20 left-4 right-20 z-10 pointer-events-none">
-                  <span className="px-2 py-0.5 rounded bg-black/60 backdrop-blur-md text-[9px] font-mono text-emerald-300 border border-emerald-500/30">
-                    EXACT FIT: 98% PRECISION
-                  </span>
-                  <h4 className="font-serif-editorial text-xl font-bold text-white leading-tight mt-1 drop-shadow">
-                    {userStylingHeadline}
-                  </h4>
                 </div>
 
                 {/* Embedded Creator Affiliate QR Code Stamped in Corner */}

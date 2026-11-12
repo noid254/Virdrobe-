@@ -66,7 +66,7 @@ export const Navbar: React.FC<Props> = ({
             }`}
           >
             <Compass className="w-3.5 h-3.5 text-rose-500" />
-            <span className="hidden sm:inline">Discover Covers</span>
+            <span className="hidden sm:inline">Discover Pins</span>
             <span className="sm:hidden">Discover</span>
           </button>
 
